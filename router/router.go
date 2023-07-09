@@ -72,6 +72,10 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to login", http.StatusBadRequest)
 		return
 	}
+	if userID == "password incorrect"{
+		http.Error(w, "Incorrect password", http.StatusBadRequest)
+		return
+	}
 	session.Values["userID"] = userID
 	session.Values["Authorized"] = true
 	session.Save(r, w)

@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"musicSharingAPp/db"
 	"musicSharingAPp/models"
 	"strconv"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginStruct struct {
@@ -28,9 +31,15 @@ func IsFollowing(userID, followID uint) bool {
 
 func SignUp(user *models.User) error {
 	user.Username = strings.ToLower(user.Username)
-	err := db.DB.Create(&user).Error
-	if err != nil {
+	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil{
 		return err
+	}
+	user.Password = string(password)
+	fmt.Println(password)
+	err2 := db.DB.Create(&user).Error
+	if err2 != nil {
+		return err2
 	}
 	log.Println("Successfully created user: ", user.Username)
 	return nil
@@ -41,11 +50,13 @@ func Login(login LoginStruct) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if login.Password != user.Password {
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(login.Password))
+	if err != nil {
 		return "password incorrect", nil
 	}
-	return strconv.FormatUint(uint64(user.ID), 10), nil
 
+	return strconv.FormatUint(uint64(user.ID), 10), nil
 }
 func DeleteAcc(id string) error {
 	err := db.DB.Delete(&models.User{}, id).Error

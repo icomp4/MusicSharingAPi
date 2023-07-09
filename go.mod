@@ -18,6 +18,8 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
-	golang.org/x/crypto v0.10.0 // indirect
+	golang.org/x/crypto v0.10.0 // direct
 	golang.org/x/text v0.10.0 // indirect
 )
+
+require github.com/go-chi/cors v1.2.1 // direct
