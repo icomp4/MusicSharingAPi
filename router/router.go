@@ -57,7 +57,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 }
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var login controllers.LoginStruct
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -85,7 +85,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAcc(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -108,7 +108,7 @@ func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Successfully deleted account"))
 }
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -129,7 +129,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 func GetUserInfoByID(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -150,7 +150,7 @@ func GetUserInfoByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 func GetAllUsersInfo(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -170,7 +170,7 @@ func GetAllUsersInfo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 func FollowUser(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -195,7 +195,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User successfully followed!"))
 }
 func UnfollowUser(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadGateway)
 		return
@@ -220,7 +220,7 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User successfully unfollowed!"))
 }
 func CreatePost(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	var post *models.Post
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadRequest)
@@ -258,7 +258,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Post successfully created!"))
 }
 func GetCurrentUserPosts(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadRequest)
 		return
@@ -279,7 +279,7 @@ func GetCurrentUserPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 func GetPostsViaUserID(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadRequest)
 		return
@@ -300,7 +300,7 @@ func GetPostsViaUserID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 func DeletePost(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, secretKey)
+	session, err := store.Get(r, "session")
 	if err != nil {
 		http.Error(w, "Could not get session", http.StatusBadRequest)
 		return
@@ -398,6 +398,7 @@ func UnlikePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Post successfully unliked"))
 }
 
+
 func validatePassword(password string) error {
 	hasUppercase := `[A-Z]`
 	hasLowercase := `[a-z]`
@@ -419,7 +420,6 @@ func validatePassword(password string) error {
 	if !match {
 		return errors.New("password must contain at least one lowercase letter")
 	}
-
 	match, err = regexp.MatchString(hasDigit, password)
 	if err != nil {
 		return err
@@ -427,7 +427,6 @@ func validatePassword(password string) error {
 	if !match {
 		return errors.New("password must contain at least one digit")
 	}
-
 	match, err = regexp.MatchString(hasSpecialChar, password)
 	if err != nil {
 		return err
@@ -435,13 +434,84 @@ func validatePassword(password string) error {
 	if !match {
 		return errors.New("password must contain at least one special character (@$!%*#?&)")
 	}
-
 	if len(password) < 8 {
 		return errors.New("password must be at least 8 characters long")
 	}
-
 	return nil
 }
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session")
+	if err != nil {
+		http.Error(w, "Could not get session", http.StatusBadRequest)
+		return
+	}
+	isAuth := session.Values["Authorized"]
+	if isAuth != true {
+		http.Error(w, "User not authorized", http.StatusBadRequest)
+		return
+	}
+	id := session.Values["userID"].(string)
+	var newPassword struct {
+        Password string `json:"password"`
+    }
+	json.NewDecoder(r.Body).Decode(&newPassword)
+	if validatePassword(newPassword.Password) != nil{
+		http.Error(w, "Password does not meet requirements", http.StatusBadRequest)
+		return
+	}
+	resp := controllers.UpdatePassword(id,newPassword.Password)
+	if resp == "Could not find account"{
+		http.Error(w, "Could not find account", http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Successfully updated password"))
+}
+func UpdatePFP(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session")
+	if err != nil {
+		http.Error(w, "Could not get session", http.StatusBadRequest)
+		return
+	}
+	isAuth := session.Values["Authorized"]
+	if isAuth != true {
+		http.Error(w, "User not authorized", http.StatusBadRequest)
+		return
+	}
+	id := session.Values["userID"].(string)
+	var newPFP struct {
+        Url string `json:"url"`
+    }
+	json.NewDecoder(r.Body).Decode(&newPFP)
+	resp := controllers.UpdatePFP(id,newPFP.Url)
+	if resp == "Could not find account"{
+		http.Error(w, "Could not find account", http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Successfully updated profile picture"))
+}
+func GetFeed(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session")
+	if err != nil {
+		http.Error(w, "Could not get session", http.StatusBadRequest)
+		return
+	}
+	isAuth := session.Values["Authorized"]
+	if isAuth != true {
+		http.Error(w, "User not authorized", http.StatusBadRequest)
+		return
+	}
+	resp := controllers.GetFeed(session.Values["userID"].(string))
+	if len(resp) == 0 {
+		http.Error(w, "Unable to get feed", http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
+}
+
 func IsStringEmpty(s string) bool {
 	return strings.TrimSpace(s) == ""
 }

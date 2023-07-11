@@ -17,7 +17,8 @@ type User struct {
 	Blocked        []User     `gorm:"many2many:user_blocked;"`
 	Playlists      []Playlist `gorm:"foreignKey:UserID;"`
 	Posts          []Post     `gorm:"foreignKey:UserID"`
-	LikedPosts     []Post      `gorm:"many2many:user_likes_posts;"`
+	LikedPosts     []Post     `gorm:"many2many:user_likes_posts;"`
+	PfpURL        string
 }
 
 type Genre struct {

@@ -38,13 +38,18 @@ func main() {
 	r.Post("/api/v1/user/login", router.UserLogin)
 	r.Put("/api/v1/user/follow/{FollowID}", router.FollowUser)
 	r.Put("/api/v1/user/unfollow/{UnfollowID}", router.UnfollowUser)
+	r.Put("/api/v1/user/update/password", router.UpdatePassword)
+	r.Put("/api/v1/user/update/pfp", router.UpdatePFP)
 
 	r.Post("/api/v1/post/create", router.CreatePost)
-	r.Get("/api/v1/posts", router.GetCurrentUserPosts)
-	r.Get("/api/v1/posts/{id}", router.GetPostsViaUserID)
-	r.Delete("/api/v1/posts/delete/{id}", router.DeletePost)
-	r.Put("/api/v1/posts/like/{id}", router.LikePost)
-	r.Put("/api/v1/posts/unlike/{id}", router.UnlikePost)
+	r.Get("/api/v1/post", router.GetCurrentUserPosts)
+	r.Get("/api/v1/post/{id}", router.GetPostsViaUserID)
+	r.Delete("/api/v1/post/delete/{id}", router.DeletePost)
+	r.Put("/api/v1/post/like/{id}", router.LikePost)
+	r.Put("/api/v1/post/unlike/{id}", router.UnlikePost)
+	
+
+	r.Get("/api/v1/feed", router.GetFeed)
 
 	http.ListenAndServe(":8080", r)
 }

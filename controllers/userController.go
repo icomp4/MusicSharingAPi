@@ -35,6 +35,10 @@ func SignUp(user *models.User) error {
 	if err != nil{
 		return err
 	}
+	usernameTaken := db.DB.Where("Username = ?", user.Username).First(&models.User{}).Error
+	if usernameTaken != nil{
+		return usernameTaken
+	}
 	user.Password = string(password)
 	fmt.Println(password)
 	err2 := db.DB.Create(&user).Error
@@ -81,7 +85,6 @@ func GetAllUsersInfo() (*[]models.User, error) {
 	}
 	return &user, nil
 }
-
 func FollowAccount(currentID string, FollowID string) string {
 	var currentUser models.User
 	var userToFollow models.User
@@ -111,6 +114,30 @@ func FollowAccount(currentID string, FollowID string) string {
 	db.DB.Save(&currentUser)
 	db.DB.Save(&userToFollow)
 	return "User successfully followed!"
+}
+func UpdatePassword(currentID string, newPassword string) string{
+	var currentUser models.User
+	err := db.DB.First(&currentUser,currentID).Error
+	if err != nil{
+		return "Could not find account"
+	}
+	password, err := bcrypt.GenerateFromPassword([]byte(currentUser.Password), bcrypt.DefaultCost)
+	if err != nil{
+		log.Fatal(err)
+	}
+	currentUser.Password = string(password)
+	db.DB.Save(&currentUser)
+	return "Successsfully updated password"
+}
+func UpdatePFP(currentID string, newImgURL string) string{
+	var currentUser models.User
+	err := db.DB.First(&currentUser,currentID).Error
+	if err != nil{
+		return "Could not find account"
+	}
+	currentUser.PfpURL = newImgURL
+	db.DB.Save(&currentUser)
+	return "Successsfully updated pfp"
 }
 func UnfollowAccount(currentID string, UnfollowID string) string {
 	var currentUser models.User
