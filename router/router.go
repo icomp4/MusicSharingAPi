@@ -14,13 +14,14 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 )
+
 var secretKey string
 var store *sessions.CookieStore
 
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		return 
+		return
 	}
 	secretKey = os.Getenv("SECRET_KEY")
 	store = sessions.NewCookieStore([]byte(os.Getenv(secretKey)))
@@ -72,7 +73,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to login", http.StatusBadRequest)
 		return
 	}
-	if userID == "password incorrect"{
+	if userID == "password incorrect" {
 		http.Error(w, "Incorrect password", http.StatusBadRequest)
 		return
 	}
@@ -81,7 +82,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("suuccessfully logged in"))
+	w.Write([]byte("successfully logged in"))
 }
 
 func DeleteAcc(w http.ResponseWriter, r *http.Request) {
@@ -398,7 +399,6 @@ func UnlikePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Post successfully unliked"))
 }
 
-
 func validatePassword(password string) error {
 	hasUppercase := `[A-Z]`
 	hasLowercase := `[a-z]`
@@ -452,15 +452,15 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	id := session.Values["userID"].(string)
 	var newPassword struct {
-        Password string `json:"password"`
-    }
+		Password string `json:"password"`
+	}
 	json.NewDecoder(r.Body).Decode(&newPassword)
-	if validatePassword(newPassword.Password) != nil{
+	if validatePassword(newPassword.Password) != nil {
 		http.Error(w, "Password does not meet requirements", http.StatusBadRequest)
 		return
 	}
-	resp := controllers.UpdatePassword(id,newPassword.Password)
-	if resp == "Could not find account"{
+	resp := controllers.UpdatePassword(id, newPassword.Password)
+	if resp == "Could not find account" {
 		http.Error(w, "Could not find account", http.StatusBadRequest)
 		return
 	}
@@ -480,11 +480,11 @@ func UpdatePFP(w http.ResponseWriter, r *http.Request) {
 	}
 	id := session.Values["userID"].(string)
 	var newPFP struct {
-        Url string `json:"url"`
-    }
+		Url string `json:"url"`
+	}
 	json.NewDecoder(r.Body).Decode(&newPFP)
-	resp := controllers.UpdatePFP(id,newPFP.Url)
-	if resp == "Could not find account"{
+	resp := controllers.UpdatePFP(id, newPFP.Url)
+	if resp == "Could not find account" {
 		http.Error(w, "Could not find account", http.StatusBadRequest)
 		return
 	}
