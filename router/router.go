@@ -27,34 +27,34 @@ func init() {
 	store = sessions.NewCookieStore([]byte(os.Getenv(secretKey)))
 }
 
-func SignUp(w http.ResponseWriter, r *http.Request) {
-	var user *models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
-		return
-	}
-	if user.Username == "" || user.Password == "" {
-		http.Error(w, "Fields must not be blank", http.StatusBadRequest)
-		return
-	}
-	if user.Password == "" {
-		http.Error(w, "Fields must not be blank", http.StatusBadRequest)
-		return
-	}
-	err2 := controllers.SignUp(user)
-	if err2 != nil {
-		http.Error(w, "Failed to create user", http.StatusBadRequest)
-		return
-	}
+func HandleSignUp(w http.ResponseWriter, r *http.Request) {
+    var user *models.User
+    err := json.NewDecoder(r.Body).Decode(&user)
+    if err != nil {
+        http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+        return
+    }
+
+    if user.Username == "" || user.Password == "" {
+        http.Error(w, "Fields must not be blank", http.StatusBadRequest)
+        return
+    }
+
 	err3 := validatePassword(user.Password)
 	if err3 != nil {
 		http.Error(w, "Please enter a strong password", http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	
+    err2 := controllers.SignUp(user)
+    if err2 != nil {
+        http.Error(w, "Failed to create user", http.StatusBadRequest)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(user)
 }
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var login controllers.LoginStruct

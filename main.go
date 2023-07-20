@@ -21,16 +21,15 @@ func init() {
 func main() {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"https://*", "http://*"},
-		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedOrigins:   []string{"http://localhost:8081"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300, 
+		AllowCredentials: true, // Set AllowCredentials to true to allow credentials (cookies) in requests
+		MaxAge:           300,
 	}))
 	r.Use(middleware.Logger)
-	r.Post("/api/v1/user/signup", router.SignUp)
+	r.Post("/api/v1/user/signup", router.HandleSignUp)
 	r.Delete("/api/v1/user/delete", router.DeleteAcc)
 	r.Get("/api/v1/user", router.GetUserInfo)
 	r.Get("/api/v1/user/:id", router.GetUserInfoByID)
@@ -47,7 +46,6 @@ func main() {
 	r.Delete("/api/v1/post/delete/{id}", router.DeletePost)
 	r.Put("/api/v1/post/like/{id}", router.LikePost)
 	r.Put("/api/v1/post/unlike/{id}", router.UnlikePost)
-	
 
 	r.Get("/api/v1/feed", router.GetFeed)
 

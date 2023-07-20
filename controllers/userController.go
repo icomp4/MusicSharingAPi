@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"musicSharingAPp/db"
 	"musicSharingAPp/models"
@@ -30,24 +29,22 @@ func IsFollowing(userID, followID uint) bool {
 }
 
 func SignUp(user *models.User) error {
-	user.Username = strings.ToLower(user.Username)
-	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil{
-		return err
-	}
-	usernameTaken := db.DB.Where("Username = ?", user.Username).First(&models.User{}).Error
-	if usernameTaken != nil{
-		return usernameTaken
-	}
-	user.Password = string(password)
-	fmt.Println(password)
-	err2 := db.DB.Create(&user).Error
-	if err2 != nil {
-		return err2
-	}
-	log.Println("Successfully created user: ", user.Username)
-	return nil
+    user.Username = strings.ToLower(user.Username)
+    password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+    if err != nil {
+        return err
+    }
+    user.Password = string(password)
+
+    // Perform user creation and database operations here
+    err2 := db.DB.Create(&user).Error
+    if err2 != nil {
+        return err2
+    }
+    log.Println("Successfully created user: ", user.Username)
+    return nil
 }
+
 func Login(login LoginStruct) (string, error) {
 	var user models.User
 	err := db.DB.Where("Username = ?", login.Username).First(&user).Error
