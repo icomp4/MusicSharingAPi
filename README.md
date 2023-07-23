@@ -3,6 +3,7 @@
  User creation:
    - Signup
    - Login
+   - Logout
    - Password encryption and decryption
    - Unique usernames (only one person can have a username)
    - Gorilla session management for easy session handling
