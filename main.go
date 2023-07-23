@@ -21,7 +21,7 @@ func init() {
 func main() {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -34,6 +34,7 @@ func main() {
 	r.Get("/api/v1/user", router.GetUserInfo)
 	r.Get("/api/v1/user/:id", router.GetUserInfoByID)
 	r.Get("/api/v1/user/all", router.GetAllUsersInfo)
+	r.Put("/api/v1/user/logout", router.UserLogout)
 	r.Post("/api/v1/user/login", router.UserLogin)
 	r.Put("/api/v1/user/follow/{FollowID}", router.FollowUser)
 	r.Put("/api/v1/user/unfollow/{UnfollowID}", router.UnfollowUser)

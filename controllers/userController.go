@@ -35,8 +35,6 @@ func SignUp(user *models.User) error {
         return err
     }
     user.Password = string(password)
-
-    // Perform user creation and database operations here
     err2 := db.DB.Create(&user).Error
     if err2 != nil {
         return err2

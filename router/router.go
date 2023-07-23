@@ -84,6 +84,18 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("successfully logged in"))
 }
+func UserLogout(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session")
+	if err != nil {
+		http.Error(w, "Could not get session", http.StatusBadGateway)
+		return
+	}
+	session.Values["Authorized"] = false
+	session.Save(r, w)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("successfully logged out"))
+}
 
 func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "session")
